@@ -5,14 +5,17 @@ if (lpd !== undefined) {
   // pull new gists only every minute (github rate limits to 60 per hour)
   if (dateDiff / 60000 > 10) {
     dispalayGist();
-    fetchGists();
+    fetchGists().then(cacheItem);
   } else {
     dispalayGist();
+    cacheItem();
   }
 } else {
   // fist time pull
   console.log("First time pull. Welcome to ragi!");
-  fetchGists().then(dispalayGist);
+  fetchGists().then(() => {
+    cacheItem().then(dispalayGist);
+  });
 }
 
 function fetchGists() {
@@ -27,8 +30,25 @@ function fetchGists() {
         localStorage.setItem("lastPullDate", Date());
         resolve();
       })
-      .catch(() => {
+      .catch((e) => {
+        console.log(e);
         random.textContent = "Github rate limited! See you in some time 👋";
+      });
+  });
+}
+
+function cacheItem() {
+  let singles = JSON.parse(localStorage.gistContents);
+  const item = singles[Math.floor(Math.random() * (singles.length - 1))];
+  return new Promise((resolve, reject) => {
+    const file = item.files[Object.keys(item.files)[0]];
+    fetch(file.raw_url)
+      .then((d) => d.text())
+      .then((d) => {
+        localStorage.setItem("nextItem", JSON.stringify(item));
+        localStorage.setItem("nextContent", d);
+        console.log("Stored next item");
+        resolve();
       });
   });
 }
@@ -37,19 +57,14 @@ function dispalayGist() {
   let random = document.getElementById("random");
   let random_lang = document.getElementById("language");
   let random_name = document.getElementById("name");
-  let singles = JSON.parse(localStorage.gistContents);
-  const randomItem = singles[Math.floor(Math.random() * (singles.length - 1))];
-  console.log(randomItem);
-  const randomFile = randomItem.files[Object.keys(randomItem.files)[0]];
-  fetch(randomFile.raw_url)
-    .then((d) => d.text())
-    .then((d) => {
-      random.textContent = d;
-      random_name.textContent = randomFile.filename;
-      random_lang.textContent = randomFile.language;
-      random_name.href = "https://gist.github.com/" + randomItem.id;
-    })
-    .catch(() => {
-      random.textContent = "Github rate limited! See you in some time 👋";
-    });
+
+  const item = JSON.parse(localStorage.nextItem);
+  console.log(item);
+  const file = item.files[Object.keys(item.files)[0]];
+  const content = localStorage.nextContent;
+
+  random.textContent = content;
+  random_name.textContent = file.filename;
+  random_lang.textContent = file.language;
+  random_name.href = "https://gist.github.com/" + item.id;
 }
