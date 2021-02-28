@@ -12,7 +12,7 @@ if (lpd !== undefined) {
 } else {
   // fist time pull
   console.log("First time pull. Welcome to ragi!");
-  fetchGists.then(dispalayGist);
+  fetchGists().then(dispalayGist);
 }
 
 function fetchGists() {
