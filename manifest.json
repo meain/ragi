@@ -1,0 +1,16 @@
+{
+	"name": "ragi",
+	"short_name": "Ragi",
+	"version": "0.1.0",
+	"manifest_version": 2,
+	"description": "Random gist every time you open a new tab.",
+	"icons": {
+		 "48": "icons/icon_48.png",
+		 "16": "icons/icon_16.png"
+	},
+	"permissions": ["tabs"],
+	"chrome_url_overrides":
+	{
+		"newtab": "index.html"
+	}
+}
