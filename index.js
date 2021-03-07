@@ -25,7 +25,7 @@ function fetchGists() {
       .then((d) => d.json())
       .then((d) => {
         let random = document.getElementById("random");
-        const singles = d.filter((o) => Object.keys(o.files).length === 1);
+        const singles = d.filter((o) => Object.keys(o.files).length === 1 && o.files[Object.keys(o.files)[0]] !== "keybase.md");
         localStorage.setItem("gistContents", JSON.stringify(singles));
         localStorage.setItem("lastPullDate", Date());
         resolve();
